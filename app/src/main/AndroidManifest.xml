@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Floating overlay permission -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- Foreground service to keep bubble alive -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
@@ -19,7 +19,8 @@
         android:theme="@style/Theme.StickyFloat">
         <activity
             android:name=".ui.NotesActivity"
-            android:exported="false" />
+            android:theme="@style/Theme.StickyFloat.Translucent"
+            tools:ignore="DuplicateActivity" />
         <activity
             android:name=".ui.NoteAdapter"
             android:exported="false" />
@@ -34,10 +35,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.NotesActivity"
-            android:theme="@style/Theme.StickyFloat.Translucent"
-            tools:ignore="DuplicateActivity" /> <!-- Foreground service that hosts the floating bubble -->
         <service
             android:name=".services.FloatingBubbleService"
             android:foregroundServiceType="specialUse"
