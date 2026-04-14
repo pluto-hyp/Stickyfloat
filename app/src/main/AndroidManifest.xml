@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Floating overlay permission -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- Foreground service to keep bubble alive -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StickyFloat">
+        <activity
+            android:name=".ui.NotesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.NoteAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.StickyFloat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.NotesActivity"
+            android:theme="@style/Theme.StickyFloat.Translucent"
+            tools:ignore="DuplicateActivity" /> <!-- Foreground service that hosts the floating bubble -->
+        <service
+            android:name=".services.FloatingBubbleService"
+            android:foregroundServiceType="specialUse"
+            tools:ignore="ForegroundServicePermission" />
+    </application>
+
+</manifest>
+

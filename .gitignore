@@ -1,0 +1,89 @@
+# ========================
+# ANDROID STUDIO / IDEA
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+
+# ========================
+# GRADLE
+# ========================
+.gradle/
+build/
+**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+local.properties
+
+# ========================
+# ANDROID SPECIFIC
+# ========================
+/local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Signing configs & keystore (VERY important — never commit these)
+*.jks
+*.keystore
+keystore.properties
+release/
+
+# Generated files
+gen/
+out/
+
+# ========================
+# KOTLIN
+# ========================
+*.kotlin_module
+
+# ========================
+# LOGS & TEMP FILES
+# ========================
+*.log
+*.tmp
+*.temp
+captures/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+# ========================
+# OS SPECIFIC
+# ========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ========================
+# ENVIRONMENT / SECRETS
+# ========================
+.env
+*.env.local
+google-services.json
+secrets.properties
+apikeys.properties
