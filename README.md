@@ -36,8 +36,8 @@ app/src/main/java/ma/project/stickyfloat/
 
 - [x] Project Structure Setup
 - [x] Basic Manifest Configuration (Permissions, Services)
-- [ ] Floating Bubble Logic Implementation
-- [ ] Room Database Integration for Note Persistence
+- [x] Floating Bubble Logic Implementation
+- [x] Room Database Integration for Note Persistence
 - [ ] Complete Note Editing/Viewing UI
 
 ## 🚦 Getting Started
