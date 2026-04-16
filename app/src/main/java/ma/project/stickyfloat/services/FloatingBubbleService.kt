@@ -5,24 +5,16 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.view.*
-import android.widget.*
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import ma.project.stickyfloat.R
-import ma.project.stickyfloat.data.NoteDatabase
-import ma.project.stickyfloat.data.NoteRepository
-import ma.project.stickyfloat.model.Note
-import ma.project.stickyfloat.model.NoteStatus
 import ma.project.stickyfloat.ui.NotesActivity
-import kotlinx.coroutines.launch
 
 class FloatingBubbleService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var bubbleView: View
-    private var isPanelOpen = false
 
     companion object {
         const val CHANNEL_ID = "sticky_float_channel"
@@ -36,7 +28,9 @@ class FloatingBubbleService : Service() {
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification())
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        showBubble()
+        if (Settings.canDrawOverlays(this)) {
+            showBubble()
+        }
     }
 
     private fun showBubble() {
@@ -49,7 +43,8 @@ class FloatingBubbleService : Service() {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
                 WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
@@ -62,28 +57,35 @@ class FloatingBubbleService : Service() {
         var initialTouchX = 0f; var initialTouchY = 0f
         var isDragging = false
 
-        bubbleView.setOnTouchListener { _, event ->
+        bubbleView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x; initialY = params.y
-                    initialTouchX = event.rawX; initialTouchY = event.rawY
+                    initialX = params.x
+                    initialY = params.y
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
                     isDragging = false
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val dx = (event.rawX - initialTouchX).toInt()
                     val dy = (event.rawY - initialTouchY).toInt()
-                    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true
-                    params.x = initialX + dx
-                    params.y = initialY + dy
-                    windowManager.updateViewLayout(bubbleView, params)
+                    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                        isDragging = true
+                        params.x = initialX + dx
+                        params.y = initialY + dy
+                        windowManager.updateViewLayout(bubbleView, params)
+                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (!isDragging) openNotesActivity()
+                    if (!isDragging) {
+                        openNotesActivity()
+                    }
+                    v.performClick()
                     true
                 }
-                else -> false
+                else -> true  // was "false" — this was dropping events on some devices
             }
         }
 
@@ -92,14 +94,18 @@ class FloatingBubbleService : Service() {
 
     private fun openNotesActivity() {
         val intent = Intent(this, NotesActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (::bubbleView.isInitialized) windowManager.removeView(bubbleView)
+        if (::bubbleView.isInitialized && bubbleView.isAttachedToWindow) {
+            windowManager.removeView(bubbleView)
+        }
     }
 
     private fun createNotificationChannel() {

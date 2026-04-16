@@ -39,8 +39,8 @@
                 android:layout_height="32dp"
                 android:src="@drawable/ic_edit"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="#AAFFD700"
-                android:layout_marginStart="4dp" />
+                android:layout_marginStart="4dp"
+                app:tint="#AAFFD700" />
 
             <ImageButton
                 android:id="@+id/btnDelete"
@@ -48,7 +48,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/ic_delete"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="#AA888888"
+                app:tint="#AA888888"
                 android:layout_marginStart="4dp" />
         </LinearLayout>
 
@@ -99,9 +99,9 @@
                 android:id="@+id/btnInProgress"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:text="🔄"
-                android:textSize="14sp"
+                android:textSize="24sp"
                 android:paddingHorizontal="8dp"
                 app:strokeColor="#446699FF"
                 android:layout_marginEnd="4dp" />
@@ -110,9 +110,9 @@
                 android:id="@+id/btnDone"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:text="✅"
-                android:textSize="14sp"
+                android:textSize="24sp"
                 android:paddingHorizontal="8dp"
                 app:strokeColor="#4444BB44"
                 android:layout_marginEnd="4dp" />
@@ -121,9 +121,9 @@
                 android:id="@+id/btnCancelled"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:text="❌"
-                android:textSize="14sp"
+                android:textSize="24sp"
                 android:paddingHorizontal="8dp"
                 app:strokeColor="#44BB4444" />
 

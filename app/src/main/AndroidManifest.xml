@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!-- Floating overlay permission -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission
@@ -21,9 +22,6 @@
             android:name=".ui.NotesActivity"
             android:theme="@style/Theme.StickyFloat.Translucent"
             tools:ignore="DuplicateActivity" />
-        <activity
-            android:name=".ui.NoteAdapter"
-            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
