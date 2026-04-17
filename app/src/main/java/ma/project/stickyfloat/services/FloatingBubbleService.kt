@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import android.widget.EditText
 import android.widget.Button
 import android.widget.Toast
+import android.view.ContextThemeWrapper
 
 class FloatingBubbleService : Service() {
 
@@ -33,7 +34,7 @@ class FloatingBubbleService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var lastClickTime: Long = 0
-    private val DOUBLE_CLICK_TIME_DELTA: Long = 300
+    private val DOUBLE_CLICK_TIME_DELTA: Long = 500
 
     companion object {
         const val CHANNEL_ID = "sticky_float_channel"
@@ -132,7 +133,8 @@ class FloatingBubbleService : Service() {
     private fun showNotePopup() {
         if (popupView != null) return
 
-        popupView = LayoutInflater.from(this).inflate(R.layout.dialog_sticky_note, null)
+        val contextWrapper = ContextThemeWrapper(this, R.style.Theme_StickyFloat)
+        popupView = LayoutInflater.from(contextWrapper).inflate(R.layout.dialog_sticky_note, null)
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -141,15 +143,16 @@ class FloatingBubbleService : Service() {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
                 WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+            WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         ).apply {
             dimAmount = 0.6f
         }
 
-        val etNote = popupView?.findViewById<EditText>(ma.project.stickyfloat.R.id.et_note)
-        val btnSave = popupView?.findViewById<Button>(ma.project.stickyfloat.R.id.btn_save)
-        val btnCancel = popupView?.findViewById<Button>(ma.project.stickyfloat.R.id.btn_cancel)
+        val etNote = popupView?.findViewById<EditText>(R.id.et_note)
+        val btnSave = popupView?.findViewById<Button>(R.id.btn_save)
+        val btnCancel = popupView?.findViewById<Button>(R.id.btn_cancel)
 
         btnSave?.setOnClickListener {
             val content = etNote?.text?.toString()?.trim() ?: ""
@@ -164,8 +167,11 @@ class FloatingBubbleService : Service() {
             dismissPopup()
         }
 
-        popupView?.setOnClickListener {
-            dismissPopup()
+        popupView?.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                dismissPopup()
+            }
+            true
         }
 
         windowManager.addView(popupView, params)

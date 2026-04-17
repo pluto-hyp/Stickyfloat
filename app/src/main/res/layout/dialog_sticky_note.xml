@@ -4,7 +4,9 @@
     android:id="@+id/popup_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:background="@android:color/transparent"
+    android:clickable="true"
+    android:focusable="true">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="340dp"
