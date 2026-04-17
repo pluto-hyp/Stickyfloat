@@ -5,16 +5,35 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
+import android.os.Handler
 import android.provider.Settings
 import android.view.*
 import androidx.core.app.NotificationCompat
 import ma.project.stickyfloat.R
 import ma.project.stickyfloat.ui.NotesActivity
+import ma.project.stickyfloat.data.NoteDatabase
+import ma.project.stickyfloat.data.NoteRepository
+import ma.project.stickyfloat.model.Note
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import android.widget.EditText
+import android.widget.Button
+import android.widget.Toast
 
 class FloatingBubbleService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var bubbleView: View
+    private var popupView: View? = null
+
+    private lateinit var repository: NoteRepository
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    private var lastClickTime: Long = 0
+    private val DOUBLE_CLICK_TIME_DELTA: Long = 300
 
     companion object {
         const val CHANNEL_ID = "sticky_float_channel"
@@ -28,6 +47,8 @@ class FloatingBubbleService : Service() {
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification())
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val database = NoteDatabase.getDatabase(this)
+        repository = NoteRepository(database.noteDao())
         if (Settings.canDrawOverlays(this)) {
             showBubble()
         }
@@ -80,7 +101,13 @@ class FloatingBubbleService : Service() {
                 }
                 MotionEvent.ACTION_UP -> {
                     if (!isDragging) {
-                        openNotesActivity()
+                        val clickTime = System.currentTimeMillis()
+                        if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                            openNotesActivity()
+                        } else {
+                            showNotePopup()
+                        }
+                        lastClickTime = clickTime
                     }
                     v.performClick()
                     true
@@ -99,10 +126,71 @@ class FloatingBubbleService : Service() {
                     Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
+        dismissPopup()
+    }
+
+    private fun showNotePopup() {
+        if (popupView != null) return
+
+        popupView = LayoutInflater.from(this).inflate(R.layout.dialog_sticky_note, null)
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            dimAmount = 0.6f
+        }
+
+        val etNote = popupView?.findViewById<EditText>(ma.project.stickyfloat.R.id.et_note)
+        val btnSave = popupView?.findViewById<Button>(ma.project.stickyfloat.R.id.btn_save)
+        val btnCancel = popupView?.findViewById<Button>(ma.project.stickyfloat.R.id.btn_cancel)
+
+        btnSave?.setOnClickListener {
+            val content = etNote?.text?.toString()?.trim() ?: ""
+            if (content.isNotEmpty()) {
+                saveNote(content)
+            } else {
+                Toast.makeText(this, "Please write something first", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCancel?.setOnClickListener {
+            dismissPopup()
+        }
+
+        popupView?.setOnClickListener {
+            dismissPopup()
+        }
+
+        windowManager.addView(popupView, params)
+    }
+
+    private fun saveNote(content: String) {
+        serviceScope.launch {
+            repository.insert(Note(content = content))
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(this@FloatingBubbleService, "Note saved! 📌", Toast.LENGTH_SHORT).show()
+                dismissPopup()
+            }
+        }
+    }
+
+    private fun dismissPopup() {
+        if (popupView != null && popupView?.isAttachedToWindow == true) {
+            windowManager.removeView(popupView)
+            popupView = null
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        dismissPopup()
         if (::bubbleView.isInitialized && bubbleView.isAttachedToWindow) {
             windowManager.removeView(bubbleView)
         }

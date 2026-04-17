@@ -21,6 +21,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnStart.setOnClickListener { requestOverlayPermission() }
         binding.btnStop.setOnClickListener { stopService() }
+        binding.btnStoredNotes.setOnClickListener { openNotesActivity() }
+    }
+
+    private fun openNotesActivity() {
+        val intent = Intent(this, ma.project.stickyfloat.ui.NotesActivity::class.java)
+        startActivity(intent)
     }
 
     private fun requestOverlayPermission() {
@@ -50,7 +56,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, FloatingBubbleService::class.java)
         startForegroundService(intent)
         Toast.makeText(this, "Bubble is now floating! 🟡", Toast.LENGTH_SHORT).show()
-        // Optionally minimize the app
         moveTaskToBack(true)
     }
 
