@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_dark">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -36,7 +35,6 @@
             app:tint="#FFFFFF" />
     </LinearLayout>
 
-    <!-- Empty state -->
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="wrap_content"
@@ -48,7 +46,6 @@
         android:gravity="center"
         android:visibility="gone" />
 
-    <!-- Notes list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerNotes"
         android:layout_width="match_parent"
@@ -59,7 +56,6 @@
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddNote"
         android:layout_width="wrap_content"

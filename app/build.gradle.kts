@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)          // ← Must be added
-    alias(libs.plugins.kotlin.compose)          // This is the Compose compiler plugin
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
 }
 
@@ -13,8 +13,8 @@ android {
         applicationId = "ma.project.stickyfloat"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -82,6 +82,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // You had an old lifecycle-process version → updated to match others
-    implementation("androidx.lifecycle:lifecycle-process:2.8.7")   // or latest 2.9.x / 2.10.x
+    //lifecycle-process
+    implementation("androidx.lifecycle:lifecycle-process:2.8.7")
 }

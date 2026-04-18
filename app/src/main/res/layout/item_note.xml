@@ -17,7 +17,6 @@
         android:orientation="vertical"
         android:padding="14dp">
 
-        <!-- Top row: content + edit/delete -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,7 +51,6 @@
                 android:layout_marginStart="4dp" />
         </LinearLayout>
 
-        <!-- Date -->
         <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
@@ -61,21 +59,18 @@
             android:textSize="11sp"
             android:layout_marginTop="6dp" />
 
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#22FFFFFF"
             android:layout_marginVertical="10dp" />
 
-        <!-- Status row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- Current status chip -->
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStatus"
                 android:layout_width="wrap_content"
@@ -94,33 +89,32 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <!-- Action buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnInProgress"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="64dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="8dp"
                 android:text="🔄"
                 android:textSize="24sp"
-                android:paddingHorizontal="8dp"
-                app:strokeColor="#446699FF"
-                android:layout_marginEnd="4dp" />
+                app:strokeColor="#446699FF" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDone"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="64dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="8dp"
                 android:text="✅"
                 android:textSize="24sp"
-                android:paddingHorizontal="8dp"
-                app:strokeColor="#4444BB44"
-                android:layout_marginEnd="4dp" />
+                app:strokeColor="#4444BB44" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelled"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="64dp"
                 android:layout_height="wrap_content"
                 android:text="❌"
                 android:textSize="24sp"

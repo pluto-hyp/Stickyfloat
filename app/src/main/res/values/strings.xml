@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">StickyFloat</string>
+    <string name="Subtitle">Your notes, always floating</string>
+    <string name="launch_button">🟡  Launch Bubble</string>
+    <string name="stored_notes">Stored Notes</string>
+    <string name="stop_bubble">Stop Bubble</string>
+    <string name="content_description">StickyFloat icon</string>
+    <string name="hint">Write your sticky note…</string>
+    <string name="cancel">Cancel</string>
+    <string name="save_note">Save Note</string>
 </resources>
