@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/iv_remove"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/remove_bubble_bg"
+        android:padding="16dp"
+        android:src="@drawable/ic_close"
+        app:tint="@color/gray"
+        android:elevation="10dp" />
+
+</FrameLayout>

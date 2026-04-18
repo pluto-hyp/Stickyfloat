@@ -30,6 +30,10 @@ class FloatingBubbleService : Service() {
     private lateinit var bubbleView: View
     private var popupView: View? = null
 
+    private var removeView: View? = null
+    private lateinit var removeParams: WindowManager.LayoutParams
+    private var isOverRemove = false
+
     private lateinit var repository: NoteRepository
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -52,6 +56,38 @@ class FloatingBubbleService : Service() {
         repository = NoteRepository(database.noteDao())
         if (Settings.canDrawOverlays(this)) {
             showBubble()
+            prepareRemoveView()
+        }
+    }
+
+    private fun prepareRemoveView() {
+        removeView = LayoutInflater.from(this).inflate(R.layout.layout_remove_bubble, null)
+        removeParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = 100 // Distance from bottom
+        }
+    }
+
+    private fun showRemoveView() {
+        if (removeView?.isAttachedToWindow == false) {
+            windowManager.addView(removeView, removeParams)
+        }
+    }
+
+    private fun hideRemoveView() {
+        if (removeView?.isAttachedToWindow == true) {
+            windowManager.removeView(removeView)
         }
     }
 
@@ -92,15 +128,22 @@ class FloatingBubbleService : Service() {
                 MotionEvent.ACTION_MOVE -> {
                     val dx = (event.rawX - initialTouchX).toInt()
                     val dy = (event.rawY - initialTouchY).toInt()
-                    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
                         isDragging = true
+                        showRemoveView()
                         params.x = initialX + dx
                         params.y = initialY + dy
                         windowManager.updateViewLayout(bubbleView, params)
+                        checkProximity(event.rawX, event.rawY)
                     }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
+                    hideRemoveView()
+                    if (isOverRemove) {
+                        stopSelf()
+                        return@setOnTouchListener true
+                    }
                     if (!isDragging) {
                         val clickTime = System.currentTimeMillis()
                         if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
@@ -113,11 +156,39 @@ class FloatingBubbleService : Service() {
                     v.performClick()
                     true
                 }
-                else -> true  // was "false" — this was dropping events on some devices
+                else -> true
             }
         }
 
         windowManager.addView(bubbleView, params)
+    }
+
+    private fun checkProximity(rawX: Float, rawY: Float) {
+        val metrics = resources.displayMetrics
+        val screenWidth = metrics.widthPixels
+        val screenHeight = metrics.heightPixels
+
+        // Target is bottom center
+        val targetX = screenWidth / 2f
+        val targetY = screenHeight - 200f // Approximate position of remove icon center
+
+        val distance = Math.sqrt(
+            Math.pow((rawX - targetX).toDouble(), 2.0) +
+                    Math.pow((rawY - targetY).toDouble(), 2.0)
+        )
+
+        val wasOverRemove = isOverRemove
+        isOverRemove = distance < 250 // threshold pixels
+
+        if (wasOverRemove != isOverRemove) {
+            // Visual feedback: scale up the remove icon
+            val scale = if (isOverRemove) 1.5f else 1.0f
+            removeView?.findViewById<View>(R.id.iv_remove)?.animate()
+                ?.scaleX(scale)
+                ?.scaleY(scale)
+                ?.setDuration(200)
+                ?.start()
+        }
     }
 
     private fun openNotesActivity() {
@@ -200,6 +271,7 @@ class FloatingBubbleService : Service() {
         if (::bubbleView.isInitialized && bubbleView.isAttachedToWindow) {
             windowManager.removeView(bubbleView)
         }
+        hideRemoveView()
     }
 
     private fun createNotificationChannel() {
