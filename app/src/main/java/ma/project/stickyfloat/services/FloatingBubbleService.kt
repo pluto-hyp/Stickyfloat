@@ -23,6 +23,7 @@ import android.widget.EditText
 import android.widget.Button
 import android.widget.Toast
 import android.view.ContextThemeWrapper
+import kotlin.math.abs
 
 class FloatingBubbleService : Service() {
 
@@ -37,8 +38,13 @@ class FloatingBubbleService : Service() {
     private lateinit var repository: NoteRepository
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    private var lastClickTime: Long = 0
-    private val DOUBLE_CLICK_TIME_DELTA: Long = 500
+    private val longPressHandler = Handler(Looper.getMainLooper())
+    private var isLongPressExecuted = false
+    private val LONG_PRESS_TIME = 500L
+    private val longPressRunnable = Runnable {
+        isLongPressExecuted = true
+        openNotesActivity()
+    }
 
     companion object {
         const val CHANNEL_ID = "sticky_float_channel"
@@ -123,13 +129,16 @@ class FloatingBubbleService : Service() {
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
                     isDragging = false
+                    isLongPressExecuted = false
+                    longPressHandler.postDelayed(longPressRunnable, LONG_PRESS_TIME)
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val dx = (event.rawX - initialTouchX).toInt()
                     val dy = (event.rawY - initialTouchY).toInt()
-                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                    if (abs(dx) > 10 || abs(dy) > 10) {
                         isDragging = true
+                        longPressHandler.removeCallbacks(longPressRunnable)
                         showRemoveView()
                         params.x = initialX + dx
                         params.y = initialY + dy
@@ -139,19 +148,17 @@ class FloatingBubbleService : Service() {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
+                    longPressHandler.removeCallbacks(longPressRunnable)
                     hideRemoveView()
                     if (isOverRemove) {
                         stopSelf()
                         return@setOnTouchListener true
                     }
+                    if (isLongPressExecuted) {
+                        return@setOnTouchListener true
+                    }
                     if (!isDragging) {
-                        val clickTime = System.currentTimeMillis()
-                        if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                            openNotesActivity()
-                        } else {
-                            showNotePopup()
-                        }
-                        lastClickTime = clickTime
+                        showNotePopup()
                     }
                     v.performClick()
                     true
@@ -224,6 +231,11 @@ class FloatingBubbleService : Service() {
         val etNote = popupView?.findViewById<EditText>(R.id.et_note)
         val btnSave = popupView?.findViewById<Button>(R.id.btn_save)
         val btnCancel = popupView?.findViewById<Button>(R.id.btn_cancel)
+        val btnViewAll = popupView?.findViewById<View>(R.id.btn_view_all)
+
+        btnViewAll?.setOnClickListener {
+            openNotesActivity()
+        }
 
         btnSave?.setOnClickListener {
             val content = etNote?.text?.toString()?.trim() ?: ""
@@ -267,6 +279,7 @@ class FloatingBubbleService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        longPressHandler.removeCallbacks(longPressRunnable)
         dismissPopup()
         if (::bubbleView.isInitialized && bubbleView.isAttachedToWindow) {
             windowManager.removeView(bubbleView)

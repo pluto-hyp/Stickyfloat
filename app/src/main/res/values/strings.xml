@@ -3,10 +3,18 @@
     <string name="app_name">StickyFloat</string>
     <string name="Subtitle">Your notes, always floating</string>
     <string name="launch_button">🟡  Launch Bubble</string>
+    <string name="inProgressIcon">🔄</string>
+    <string name="doneIcon">✅</string>
+    <string name="cancelIcon">❌</string>
+    <string name="aiIcon">✨</string>
+    <string name="enter">Enter your note…</string>
     <string name="stored_notes">Stored Notes</string>
     <string name="stop_bubble">Stop Bubble</string>
     <string name="content_description">StickyFloat icon</string>
     <string name="hint">Write your sticky note…</string>
     <string name="cancel">Cancel</string>
     <string name="save_note">Save Note</string>
+    <string name="editBtn">Edit button</string>
+    <string name="deleteBtn">Delete button</string>
+    <string name="aiBtn">AI button</string>
 </resources>

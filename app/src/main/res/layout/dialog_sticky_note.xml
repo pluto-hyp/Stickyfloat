@@ -26,14 +26,31 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="📎"
-                android:textSize="42sp"
-                android:textColor="#FF0000"
-                android:rotation="35" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/btn_view_all"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentStart="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_note"
+                    android:contentDescription="View all notes"
+                    app:tint="#5D4037" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="📎"
+                    android:textSize="42sp"
+                    android:textColor="#FF0000"
+                    android:rotation="35" />
+
+            </RelativeLayout>
 
             <EditText
                 android:id="@+id/et_note"
