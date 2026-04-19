@@ -1,79 +1,121 @@
 package ma.project.stickyfloat.ui
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ma.project.stickyfloat.R
+import ma.project.stickyfloat.services.AnthropicService
+import ma.project.stickyfloat.databinding.DialogAiExpandBinding
+import ma.project.stickyfloat.databinding.ItemNoteBinding
 import ma.project.stickyfloat.model.Note
 import ma.project.stickyfloat.model.NoteStatus
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteAdapter(
-    private var notes: List<Note> = emptyList(),
+    private val lifecycleScope: LifecycleCoroutineScope,
+    private val onStatusChange: (Note, NoteStatus) -> Unit,
     private val onDelete: (Note) -> Unit,
-    private val onUpdateStatus: (Note, NoteStatus) -> Unit,
-    private val onEdit: (Note) -> Unit
-) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
-
-    fun updateNotes(newNotes: List<Note>) {
-        notes = newNotes
-        notifyDataSetChanged()
-    }
+    private val onEdit: (Note) -> Unit,
+    private val onSaveExpanded: (String) -> Unit
+) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
-        return NoteViewHolder(view)
+        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return NoteViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        holder.bind(notes[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = notes.size
-
-    inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvContent: TextView = itemView.findViewById(R.id.tvContent)
-        private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
-        private val chipStatus: Chip = itemView.findViewById(R.id.chipStatus)
-        private val btnDelete: ImageButton = itemView.findViewById(R.id.btnDelete)
-        private val btnEdit: ImageButton = itemView.findViewById(R.id.btnEdit)
-        private val btnInProgress: MaterialButton = itemView.findViewById(R.id.btnInProgress)
-        private val btnDone: MaterialButton = itemView.findViewById(R.id.btnDone)
-        private val btnCancelled: MaterialButton = itemView.findViewById(R.id.btnCancelled)
-
-        private val dateFormat = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
+    inner class NoteViewHolder(private val binding: ItemNoteBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(note: Note) {
-            tvContent.text = note.content
-            tvDate.text = dateFormat.format(Date(note.createdAt))
-            
-            // Status Chip
-            chipStatus.text = note.status.name.replace("_", " ")
-            val textColor = when (note.status) {
-                NoteStatus.IN_PROGRESS -> "#6699FF"
-                NoteStatus.DONE -> "#44BB44"
-                NoteStatus.CANCELLED -> "#BB4444"
-            }
-            
-            chipStatus.setTextColor(android.graphics.Color.parseColor(textColor))
-            chipStatus.chipStrokeColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(textColor))
-            chipStatus.chipBackgroundColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(textColor).let { 
-                android.graphics.Color.argb(30, android.graphics.Color.red(it), android.graphics.Color.green(it), android.graphics.Color.blue(it))
-            })
+            binding.tvContent.text = note.content
 
-            // Click listeners
-            btnDelete.setOnClickListener { onDelete(note) }
-            btnEdit.setOnClickListener { onEdit(note) }
-            
-            btnInProgress.setOnClickListener { onUpdateStatus(note, NoteStatus.IN_PROGRESS) }
-            btnDone.setOnClickListener { onUpdateStatus(note, NoteStatus.DONE) }
-            btnCancelled.setOnClickListener { onUpdateStatus(note, NoteStatus.CANCELLED) }
+            val sdf = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
+            binding.tvDate.text = sdf.format(Date(note.createdAt))
+
+            binding.tvContent.paintFlags = when (note.status) {
+                NoteStatus.DONE, NoteStatus.CANCELLED ->
+                    binding.tvContent.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                else ->
+                    binding.tvContent.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            }
+
+            val (chipIcon, chipText) = when (note.status) {
+                NoteStatus.IN_PROGRESS -> "🔄" to "In Progress"
+                NoteStatus.DONE -> "✅" to "Done"
+                NoteStatus.CANCELLED -> "❌" to "Cancelled"
+            }
+            binding.chipStatus.text = "$chipIcon $chipText"
+
+            binding.btnInProgress.setOnClickListener { onStatusChange(note, NoteStatus.IN_PROGRESS) }
+            binding.btnDone.setOnClickListener { onStatusChange(note, NoteStatus.DONE) }
+            binding.btnCancelled.setOnClickListener { onStatusChange(note, NoteStatus.CANCELLED) }
+            binding.btnDelete.setOnClickListener { onDelete(note) }
+            binding.btnEdit.setOnClickListener { onEdit(note) }
+
+            binding.btnAiExpand.setOnClickListener {
+                showAiExpandDialog(note)
+            }
         }
+
+        private fun showAiExpandDialog(note: Note) {
+            val ctx = binding.root.context
+            val dialogView = LayoutInflater.from(ctx).inflate(R.layout.dialog_ai_expand, null)
+            val dialogBinding = DialogAiExpandBinding.bind(dialogView)
+
+            dialogBinding.tvOriginalNote.text = note.content
+            dialogBinding.progressAi.visibility = View.VISIBLE
+            dialogBinding.tvAiResult.visibility = View.GONE
+            dialogBinding.tvError.visibility = View.GONE
+
+            val dialog = MaterialAlertDialogBuilder(ctx, R.style.NoteDialog)
+                .setTitle("✨ Expand Note")
+                .setView(dialogView)
+                .setNegativeButton("Close", null)
+                .setPositiveButton("Save as new note", null) // set below after result
+                .show()
+
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+
+            lifecycleScope.launch {
+                try {
+                    val result = AnthropicService.expandNote(note.content)
+
+                    dialogBinding.progressAi.visibility = View.GONE
+                    dialogBinding.tvAiResult.visibility = View.VISIBLE
+                    dialogBinding.tvAiResult.text = result
+
+                    dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.let { btn ->
+                        btn.isEnabled = true
+                        btn.setOnClickListener {
+                            onSaveExpanded("${note.content}\n\n$result")
+                            dialog.dismiss()
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    dialogBinding.progressAi.visibility = View.GONE
+                    dialogBinding.tvError.visibility = View.VISIBLE
+                    dialogBinding.tvError.text = "⚠️ ${e.message ?: "Something went wrong. Check your API key and internet connection."}"
+                }
+            }
+        }
+    }
+
+    class NoteDiffCallback : DiffUtil.ItemCallback<Note>() {
+        override fun areItemsTheSame(oldItem: Note, newItem: Note) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Note, newItem: Note) = oldItem == newItem
     }
 }

@@ -66,9 +66,11 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         adapter = NoteAdapter(
+            lifecycleScope = lifecycleScope,
+            onStatusChange = { note, status -> updateNoteStatus(note, status) },
             onDelete = { note -> deleteNote(note) },
-            onUpdateStatus = { note, status -> updateNoteStatus(note, status) },
-            onEdit = { note -> showEditNoteDialog(note) }
+            onEdit = { note -> showEditNoteDialog(note) },
+            onSaveExpanded = { content -> addNewNote(content) }
         )
         recyclerView.adapter = adapter
     }
@@ -76,7 +78,7 @@ class NotesActivity : AppCompatActivity() {
     private fun observeNotes() {
         lifecycleScope.launch {
             repository.allNotes.collectLatest { notes ->
-                adapter.updateNotes(notes)
+                adapter.submitList(notes)
                 tvEmpty.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
             }
         }
