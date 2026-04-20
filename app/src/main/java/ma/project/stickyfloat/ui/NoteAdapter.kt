@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ma.project.stickyfloat.R
-import ma.project.stickyfloat.services.AnthropicService
+import ma.project.stickyfloat.services.GeminiService
 import ma.project.stickyfloat.databinding.DialogAiExpandBinding
 import ma.project.stickyfloat.databinding.ItemNoteBinding
 import ma.project.stickyfloat.model.Note
@@ -24,7 +24,7 @@ class NoteAdapter(
     private val onStatusChange: (Note, NoteStatus) -> Unit,
     private val onDelete: (Note) -> Unit,
     private val onEdit: (Note) -> Unit,
-    private val onSaveExpanded: (String) -> Unit
+    private val onSaveExpanded: (Note, String) -> Unit
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -84,14 +84,14 @@ class NoteAdapter(
                 .setTitle("✨ Expand Note")
                 .setView(dialogView)
                 .setNegativeButton("Close", null)
-                .setPositiveButton("Save as new note", null) // set below after result
+                .setPositiveButton("Update note", null)
                 .show()
 
             dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
 
             lifecycleScope.launch {
                 try {
-                    val result = AnthropicService.expandNote(note.content)
+                    val result = GeminiService.expandNote(note.content)
 
                     dialogBinding.progressAi.visibility = View.GONE
                     dialogBinding.tvAiResult.visibility = View.VISIBLE
@@ -100,7 +100,7 @@ class NoteAdapter(
                     dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.let { btn ->
                         btn.isEnabled = true
                         btn.setOnClickListener {
-                            onSaveExpanded("${note.content}\n\n$result")
+                            onSaveExpanded(note, "${note.content}\n\n$result")
                             dialog.dismiss()
                         }
                     }

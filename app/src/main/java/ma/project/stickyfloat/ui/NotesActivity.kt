@@ -35,7 +35,6 @@ class NotesActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_notes)
 
-        // Fix for the NullPointerException: root ID is "main"
         val rootView = findViewById<View>(R.id.main)
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -70,7 +69,7 @@ class NotesActivity : AppCompatActivity() {
             onStatusChange = { note, status -> updateNoteStatus(note, status) },
             onDelete = { note -> deleteNote(note) },
             onEdit = { note -> showEditNoteDialog(note) },
-            onSaveExpanded = { content -> addNewNote(content) }
+            onSaveExpanded = { note, content -> updateNoteContent(note, content) }
         )
         recyclerView.adapter = adapter
     }
@@ -129,6 +128,7 @@ class NotesActivity : AppCompatActivity() {
     private fun updateNoteContent(note: Note, content: String) {
         lifecycleScope.launch {
             repository.update(note.copy(content = content))
+            Toast.makeText(this@NotesActivity, "Note updated", Toast.LENGTH_SHORT).show()
         }
     }
 
