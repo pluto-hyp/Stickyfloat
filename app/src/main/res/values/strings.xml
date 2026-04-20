@@ -17,4 +17,5 @@
     <string name="editBtn">Edit button</string>
     <string name="deleteBtn">Delete button</string>
     <string name="aiBtn">AI button</string>
+    <string name="allNotes">View all notes</string>
 </resources>

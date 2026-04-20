@@ -4,14 +4,12 @@
     android:layout_width="64dp"
     android:layout_height="64dp">
 
-    <!-- Shadow layer -->
     <View
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="center"
         android:background="@drawable/bubble_shadow" />
 
-    <!-- Main bubble -->
     <TextView
         android:layout_width="56dp"
         android:layout_height="56dp"
