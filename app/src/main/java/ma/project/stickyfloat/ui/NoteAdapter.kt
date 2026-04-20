@@ -24,7 +24,7 @@ class NoteAdapter(
     private val onStatusChange: (Note, NoteStatus) -> Unit,
     private val onDelete: (Note) -> Unit,
     private val onEdit: (Note) -> Unit,
-    private val onSaveExpanded: (String) -> Unit
+    private val onSaveExpanded: (Note, String) -> Unit
 ) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -84,7 +84,7 @@ class NoteAdapter(
                 .setTitle("✨ Expand Note")
                 .setView(dialogView)
                 .setNegativeButton("Close", null)
-                .setPositiveButton("Save as new note", null) // set below after result
+                .setPositiveButton("Update note", null)
                 .show()
 
             dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
@@ -100,7 +100,7 @@ class NoteAdapter(
                     dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.let { btn ->
                         btn.isEnabled = true
                         btn.setOnClickListener {
-                            onSaveExpanded("${note.content}\n\n$result")
+                            onSaveExpanded(note, "${note.content}\n\n$result")
                             dialog.dismiss()
                         }
                     }
