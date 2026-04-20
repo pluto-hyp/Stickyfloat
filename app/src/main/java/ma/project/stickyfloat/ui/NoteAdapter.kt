@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ma.project.stickyfloat.R
-import ma.project.stickyfloat.services.AnthropicService
+import ma.project.stickyfloat.services.GeminiService
 import ma.project.stickyfloat.databinding.DialogAiExpandBinding
 import ma.project.stickyfloat.databinding.ItemNoteBinding
 import ma.project.stickyfloat.model.Note
@@ -91,7 +91,7 @@ class NoteAdapter(
 
             lifecycleScope.launch {
                 try {
-                    val result = AnthropicService.expandNote(note.content)
+                    val result = GeminiService.expandNote(note.content)
 
                     dialogBinding.progressAi.visibility = View.GONE
                     dialogBinding.tvAiResult.visibility = View.VISIBLE
