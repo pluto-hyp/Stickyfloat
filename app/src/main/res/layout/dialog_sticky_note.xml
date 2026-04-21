@@ -59,12 +59,13 @@
                 android:gravity="top|start"
                 android:hint="@string/hint"
                 android:inputType="textMultiLine|textCapSentences"
-                android:textColor="#1F1F1F"
+                android:textColor="@color/background_dark"
                 android:textSize="18sp"
                 android:padding="12dp"
                 android:lineSpacingExtra="4dp" />
 
             <LinearLayout
+                style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -81,6 +82,7 @@
 
                 <Button
                     android:id="@+id/btn_save"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
