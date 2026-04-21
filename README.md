@@ -6,15 +6,15 @@
 
 ## Screenshots
 
-|                                             Home Overlay                                             |                                       Main Application                                       |                                         Note Management                                         |
+|                                             Home Overlay                                             |                                       Main Application                                       |                                         Drag to Remove                                         |
 |:----------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
 | ![Home Screen](app/src/main/res/drawable/screenshots/Screenshot_20260420_165611_One%20UI%20Home.jpg) | ![Main UI](app/src/main/res/drawable/screenshots/Screenshot_20260421_002403_StickyFloat.jpg) | ![Notes List](app/src/main/res/drawable/screenshots/Screenshot_20260421_002419_StickyFloat.jpg) |
 
-|                                          AI Note Expansion                                          |                                           Detail View                                            |                                        Smart Interactions                                         |
+|                                          Note Management                                          |                                           Detail View                                            |                                        Smart Interactions                                         |
 |:---------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
 | ![AI Integration](app/src/main/res/drawable/screenshots/Screenshot_20260421_002609_StickyFloat.jpg) | ![Note Detail](app/src/main/res/drawable/screenshots/Screenshot_20260421_002549_StickyFloat.jpg) | ![Interactions](app/src/main/res/drawable/screenshots/Screenshot_20260421_002631_StickyFloat.jpg) |
 
-|                                       Premium Dark Mode                                        |                                             Drag to Remove                                             |
+|                                       AI Note Expansion                                        |                                             Drag to Remove                                             |
 |:----------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------:|
 | ![Dark Mode](app/src/main/res/drawable/screenshots/Screenshot_20260421_002621_StickyFloat.jpg) | ![Remove Bubble](app/src/main/res/drawable/screenshots/Screenshot_20260421_002739_One%20UI%20Home.jpg) |
 
